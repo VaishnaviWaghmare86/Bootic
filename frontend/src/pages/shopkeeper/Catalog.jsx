@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, ShoppingCart, Info, Check, Tag, Sparkles } from 'lucide-react';
+import { Search, Filter, ShoppingCart, Info, Check, Tag, Sparkles, Package } from 'lucide-react';
 import api from '../../api/client';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
