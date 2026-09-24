@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Tag, Layers, Search, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, Layers, Search, Check, Sparkles, Image, DollarSign, Boxes, X } from 'lucide-react';
 import api from '../../api/client';
 import StatusBadge from '../../components/StatusBadge';
 
@@ -103,26 +103,25 @@ export const ProductManager = () => {
 
       const payload = {
         name: formData.name,
-        sku: formData.sku || null,
+        sku: formData.sku,
         category_id: formData.category_id,
         fabric: formData.fabric,
         color: formData.color,
-        available_sizes: formData.available_sizes.split(',').map((s) => s.trim()).filter(Boolean),
+        available_sizes: formData.available_sizes.split(',').map((s) => s.trim()),
         gender: formData.gender,
         wholesale_price: parseFloat(formData.wholesale_price),
         minimum_order_quantity: parseInt(formData.minimum_order_quantity),
+        opening_stock: parseInt(formData.opening_stock),
         low_stock_threshold: parseInt(formData.low_stock_threshold),
-        product_images: formData.product_images.split(',').map((s) => s.trim()).filter(Boolean),
+        product_images: formData.product_images.split(',').map((u) => u.trim()),
         tier_prices,
       };
 
-      if (!editingId) {
-        payload.opening_stock = parseInt(formData.opening_stock);
-        await api.post('/products', payload);
-      } else {
+      if (editingId) {
         await api.put(`/products/${editingId}`, payload);
+      } else {
+        await api.post('/products', payload);
       }
-
       setShowModal(false);
       fetchData();
     } catch (err) {
@@ -131,306 +130,340 @@ export const ProductManager = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Mark this product as Discontinued?')) return;
+    if (!window.confirm('Are you sure you want to discontinue this product?')) return;
     try {
       await api.delete(`/products/${id}`);
       fetchData();
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || 'Failed to delete');
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4 mb-8">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-emerald-900/10 gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Wholesale Products & Pricing Slabs
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-[11px] font-black uppercase tracking-widest shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Product Catalog Control</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
+            Wholesale Catalog & Quantity Tier Pricing
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage catalog styles, assign wholesale volume tier discounts, and set Minimum Order Quantities (MOQ).
+            Manage wholesale styles, fabric descriptions, quantity price discounts, and batch stock levels.
           </p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 text-xs flex items-center justify-center gap-2"
+          className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/25 transition-all hover:-translate-y-0.5"
         >
-          <Plus className="w-4 h-4" /> Add Wholesale Product
+          <Plus className="w-4 h-4" /> Add Wholesale Style
         </button>
       </div>
 
-      {/* Search Filter */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 mb-6">
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* Search & Stats Bar */}
+      <div className="bootic-card p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-96">
+          <Search className="w-4 h-4 text-emerald-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search products by SKU, name, fabric, or color..."
+            placeholder="Search SKU, Kurti, Saree, Fabric..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-emerald-50/40 border border-emerald-200/80 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           />
+        </div>
+        <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
+          <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-xl border border-emerald-200">
+            {products.length} Styles Total
+          </span>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-            <tr>
-              <th className="p-4">SKU / Product</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Wholesale Price</th>
-              <th className="p-4">Tier Pricing Slabs</th>
-              <th className="p-4">MOQ</th>
-              <th className="p-4">Stock</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {products.map((p) => (
-              <tr key={p.id} className="hover:bg-slate-50/50">
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={p.product_images?.[0] || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=200'}
-                      alt={p.name}
-                      className="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-100"
-                    />
-                    <div>
-                      <span className="font-extrabold text-rose-600 text-[10px] block">{p.sku}</span>
-                      <strong className="text-slate-900 font-bold text-xs">{p.name}</strong>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-4 font-semibold text-slate-700">{p.category_name}</td>
-                <td className="p-4 font-extrabold text-slate-900">₹{p.wholesale_price}</td>
-                <td className="p-4">
-                  {p.tier_prices?.length ? (
-                    <div className="space-y-0.5">
-                      {p.tier_prices.map((t, idx) => (
-                        <span key={idx} className="block text-[10px] text-slate-600">
-                          {t.min_quantity}+{t.max_quantity ? `-${t.max_quantity}` : ''} pcs: <strong className="text-rose-600">₹{t.price_per_unit}</strong>
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-slate-400 text-[10px]">Flat Base Price</span>
-                  )}
-                </td>
-                <td className="p-4 font-bold text-amber-700">{p.minimum_order_quantity} pcs</td>
-                <td className="p-4 font-extrabold text-slate-900">{p.available_quantity} pcs</td>
-                <td className="p-4"><StatusBadge status={p.status} /></td>
-                <td className="p-4 text-right">
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg"
-                    title="Discontinue"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </td>
+      {/* Products Table */}
+      <div className="bootic-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#f2f8f5] border-b border-emerald-900/10 text-emerald-900 font-black uppercase tracking-wider">
+              <tr>
+                <th className="p-4">Product / SKU</th>
+                <th className="p-4">Category / Fabric</th>
+                <th className="p-4">Wholesale Price</th>
+                <th className="p-4">Volume Tiers</th>
+                <th className="p-4">MOQ</th>
+                <th className="p-4">Stock Status</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-emerald-900/5">
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="p-8 text-center text-slate-400 font-bold">
+                    Loading wholesale products...
+                  </td>
+                </tr>
+              ) : products.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="p-8 text-center text-slate-400 font-bold">
+                    No products found.
+                  </td>
+                </tr>
+              ) : (
+                products.map((p) => (
+                  <tr key={p.id} className="hover:bg-emerald-50/40 transition-colors">
+                    <td className="p-4 flex items-center gap-3">
+                      <img
+                        src={
+                          p.product_images?.[0] ||
+                          'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=100'
+                        }
+                        alt={p.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-emerald-200 shadow-sm"
+                      />
+                      <div>
+                        <p className="font-black text-slate-900 line-clamp-1">{p.name}</p>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-200 px-2 py-0.5 rounded-md mt-0.5 inline-block">
+                          SKU: {p.sku}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="font-bold text-slate-800 block">{p.category_name || 'Ethnic Wear'}</span>
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        {p.fabric} • {p.color}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className="text-sm font-black text-slate-900">
+                        ₹{p.wholesale_price?.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-slate-400 block font-semibold">Base price</span>
+                    </td>
+                    <td className="p-4">
+                      {p.tier_prices && p.tier_prices.length > 0 ? (
+                        <div className="space-y-1">
+                          {p.tier_prices.map((t, idx) => (
+                            <span
+                              key={idx}
+                              className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md block w-fit"
+                            >
+                              {t.min_quantity}
+                              {t.max_quantity ? `-${t.max_quantity}` : '+'} pcs: ₹{t.price_per_unit}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-semibold">Standard only</span>
+                      )}
+                    </td>
+                    <td className="p-4 font-black text-slate-800">
+                      {p.minimum_order_quantity} pcs
+                    </td>
+                    <td className="p-4">
+                      <StatusBadge status={p.stock_quantity === 0 ? 'OUT_OF_STOCK' : 'ACTIVE'} />
+                      <span className="text-[10px] font-bold text-slate-500 block mt-1">
+                        Stock: {p.stock_quantity ?? 100}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Discontinue"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Modal */}
+      {/* Add / Edit Product Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
-              Add Wholesale Clothing Style
-            </h3>
-            <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-emerald-500/30 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <Boxes className="w-5 h-5 text-emerald-600" />
+                Add Wholesale Clothing Style
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Product Name</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Style Name
+                  </label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Women Pure Cotton Anarkali Kurti"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                    placeholder="e.g. Bandhani Print Cotton Kurti"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">SKU (Auto-generated if empty)</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    SKU Code
+                  </label>
                   <input
                     type="text"
+                    required
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                    placeholder="KRT-001"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none uppercase"
+                    placeholder="e.g. KRT-099"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Category</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Category
+                  </label>
                   <select
                     value={formData.category_id}
                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   >
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Fabric</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Fabric
+                  </label>
                   <input
                     type="text"
                     value={formData.fabric}
                     onChange={(e) => setFormData({ ...formData, fabric: e.target.value })}
-                    placeholder="100% Cotton, Rayon"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Gender</label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
-                  >
-                    <option value="WOMEN">Women</option>
-                    <option value="MEN">Men</option>
-                    <option value="KIDS">Kids</option>
-                  </select>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Color
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Base Wholesale Price (₹)</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Wholesale Price (₹)
+                  </label>
                   <input
                     type="number"
                     required
                     value={formData.wholesale_price}
                     onChange={(e) => setFormData({ ...formData, wholesale_price: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">MOQ (Pieces)</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    MOQ (Pieces)
+                  </label>
                   <input
                     type="number"
                     required
                     value={formData.minimum_order_quantity}
                     onChange={(e) => setFormData({ ...formData, minimum_order_quantity: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Initial Opening Stock</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Opening Stock
+                  </label>
                   <input
                     type="number"
                     required
                     value={formData.opening_stock}
                     onChange={(e) => setFormData({ ...formData, opening_stock: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
               </div>
 
-              {/* Wholesale Tier Slabs Builder */}
-              <div className="p-4 bg-rose-50/50 border border-rose-200 rounded-2xl space-y-3">
-                <span className="font-bold text-rose-900 block uppercase tracking-wider text-[11px]">
-                  Configure Wholesale Volume Tier Discounts:
+              {/* Tier Pricing */}
+              <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/80">
+                <span className="text-xs font-black text-emerald-900 uppercase tracking-wider block mb-2">
+                  Wholesale Volume Tier Pricing
                 </span>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] text-slate-600 block">Tier 1: Min Pcs</label>
+                    <label className="text-[10px] font-bold text-slate-600 block">Tier 1 Qty (10-49)</label>
                     <input
                       type="number"
-                      value={formData.tier1_min}
-                      onChange={(e) => setFormData({ ...formData, tier1_min: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-600 block">Tier 1: Max Pcs</label>
-                    <input
-                      type="number"
-                      value={formData.tier1_max}
-                      onChange={(e) => setFormData({ ...formData, tier1_max: e.target.value })}
-                      placeholder="49"
-                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-600 block">Tier 1: Price (₹)</label>
-                    <input
-                      type="number"
+                      placeholder="Price e.g. 450"
                       value={formData.tier1_price}
                       onChange={(e) => setFormData({ ...formData, tier1_price: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-rose-600"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-600 block">Tier 2: Min Pcs</label>
-                    <input
-                      type="number"
-                      value={formData.tier2_min}
-                      onChange={(e) => setFormData({ ...formData, tier2_min: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-600 block">Tier 2: Max (Blank for 100+)</label>
+                    <label className="text-[10px] font-bold text-slate-600 block">Tier 2 Qty (50+)</label>
                     <input
                       type="number"
-                      value={formData.tier2_max}
-                      onChange={(e) => setFormData({ ...formData, tier2_max: e.target.value })}
-                      placeholder="Above"
-                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-600 block">Tier 2: Price (₹)</label>
-                    <input
-                      type="number"
+                      placeholder="Price e.g. 400"
                       value={formData.tier2_price}
                       onChange={(e) => setFormData({ ...formData, tier2_price: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-rose-600"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-600 block">Image URL</label>
+                    <input
+                      type="text"
+                      value={formData.product_images}
+                      onChange={(e) => setFormData({ ...formData, product_images: e.target.value })}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
                     />
                   </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Product Image URL</label>
-                <input
-                  type="text"
-                  value={formData.product_images}
-                  onChange={(e) => setFormData({ ...formData, product_images: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
-                />
-              </div>
-
-              <div className="pt-3 flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold text-slate-700"
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-rose-600 text-white rounded-xl font-bold shadow-md shadow-rose-500/20"
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black rounded-xl text-xs shadow-md shadow-emerald-500/20"
                 >
-                  Save Wholesale Product
+                  Save Style
                 </button>
               </div>
             </form>

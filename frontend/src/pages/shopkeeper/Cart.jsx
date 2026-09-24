@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Trash2, ArrowRight, MapPin, CheckCircle, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Trash2, ArrowRight, MapPin, CheckCircle, ShieldCheck, AlertTriangle, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
@@ -56,7 +56,7 @@ export const Cart = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center text-slate-500 font-semibold">
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center text-emerald-800 font-extrabold">
         Loading wholesale cart...
       </div>
     );
@@ -64,116 +64,103 @@ export const Cart = () => {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-20 text-center">
-        <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mx-auto mb-4">
-          <ShoppingCart className="w-8 h-8" />
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div className="bootic-card p-10">
+          <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <ShoppingCart className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900">Your Wholesale Cart is Empty</h2>
+          <p className="text-xs text-slate-500 mt-2 max-w-sm mx-auto font-medium">
+            Explore our Mumbai wholesale clothing catalog to select bulk apparel batches with volume discounts.
+          </p>
+          <Link
+            to="/catalog"
+            className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/25 text-xs sm:text-sm"
+          >
+            Browse Wholesale Catalog
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-        <h2 className="text-xl font-extrabold text-slate-900">Your Wholesale Cart is Empty</h2>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-          Browse wholesale catalog to select garment batches with tiered quantity volume pricing.
-        </p>
-        <Link
-          to="/catalog"
-          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 text-sm"
-        >
-          Browse Clothing Catalog
-          <ArrowRight className="w-4 h-4" />
-        </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-emerald-900/10">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Wholesale Shopping Cart
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-[11px] font-black uppercase tracking-widest shadow-sm">
+            <ShoppingCart className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Wholesale Checkout</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
+            Wholesale Cart & Batch Confirmation
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            {cart.total_items_count} Product Categories • {cart.total_quantity} Total Pieces
+            {cart.total_items_count} Styles • {cart.total_quantity} Total Pieces
           </p>
         </div>
         <button
           onClick={clearCart}
-          className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1.5"
+          className="text-xs font-bold text-slate-400 hover:text-rose-600 flex items-center gap-1.5 transition-colors"
         >
           <Trash2 className="w-4 h-4" /> Clear Cart
         </button>
       </div>
-
-      {error && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-          {error}
-        </div>
-      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items List */}
         <div className="lg:col-span-2 space-y-4">
           {cart.items.map((item) => (
             <div
-              key={item.product_id}
-              className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+              key={item.product_id + item.size}
+              className="bootic-card p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
             >
               <div className="flex items-center gap-4">
                 <img
                   src={
                     item.product_image ||
-                    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=300'
+                    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=150'
                   }
                   alt={item.product_name}
-                  className="w-20 h-20 rounded-xl object-cover bg-slate-100 flex-shrink-0 border border-slate-100"
+                  className="w-16 h-16 rounded-2xl object-cover border border-emerald-100 shadow-sm"
                 />
                 <div>
-                  <span className="text-[10px] font-extrabold text-rose-600 uppercase tracking-wider">
-                    SKU: {item.sku}
+                  <h3 className="text-sm font-black text-slate-900">{item.product_name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md">
+                      SKU: {item.sku}
+                    </span>
+                    <span className="text-xs text-slate-500 font-semibold">Size: {item.size}</span>
+                  </div>
+                  <span className="text-xs font-black text-emerald-900 block mt-1">
+                    ₹{item.unit_price} / piece
                   </span>
-                  <h4 className="text-sm font-bold text-slate-900 leading-snug">
-                    {item.product_name}
-                  </h4>
-                  <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                    <span>Size: <strong className="text-slate-800">{item.selected_size || 'L'}</strong></span>
-                    {item.selected_color && <span>• Color: {item.selected_color}</span>}
-                  </div>
-                  <div className="mt-1.5 text-xs text-slate-600">
-                    Tier Wholesale Unit Price: <strong className="text-rose-600 font-bold">₹{item.effective_unit_price}</strong>
-                    {item.base_price > item.effective_unit_price && (
-                      <span className="ml-2 text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
-                        Wholesale Slab Applied
-                      </span>
-                    )}
-                  </div>
                 </div>
               </div>
 
-              {/* Quantity & Actions */}
-              <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
+              <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 font-medium">Qty:</span>
                   <input
                     type="number"
-                    min={item.minimum_order_quantity}
+                    min="1"
                     value={item.quantity}
                     onChange={(e) =>
-                      updateQuantity(
-                        item.product_id,
-                        Math.max(1, parseInt(e.target.value) || 1),
-                        item.selected_size
-                      )
+                      updateQuantity(item.product_id, parseInt(e.target.value) || 1, item.size)
                     }
-                    className="w-20 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center outline-none"
+                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-center"
                   />
+                  <span className="text-xs text-slate-400 font-bold">pcs</span>
                 </div>
 
                 <div className="text-right">
-                  <p className="text-base font-extrabold text-slate-900">
-                    ₹{item.item_total.toLocaleString()}
-                  </p>
+                  <span className="text-sm font-black text-slate-900 block">
+                    ₹{item.total_price?.toLocaleString()}
+                  </span>
                   <button
-                    onClick={() => removeFromCart(item.product_id)}
-                    className="text-slate-400 hover:text-rose-600 text-xs mt-1 transition-colors"
+                    onClick={() => removeFromCart(item.product_id, item.size)}
+                    className="text-[11px] font-bold text-rose-600 hover:underline mt-0.5"
                   >
                     Remove
                   </button>
@@ -183,125 +170,107 @@ export const Cart = () => {
           ))}
         </div>
 
-        {/* Checkout Summary Sidebar */}
+        {/* Order Summary & Dispatch Details */}
         <div className="space-y-6">
-          {/* Delivery Address Selector */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-rose-600" /> Delivery Address
-              </h3>
-              <Link to="/addresses" className="text-xs font-bold text-rose-600 hover:underline">
-                Manage
-              </Link>
-            </div>
-
-            {addresses.length === 0 ? (
-              <p className="text-xs text-slate-500">
-                Defaulting to registered boutique address in profile ({user?.city}).
-              </p>
-            ) : (
-              <select
-                value={selectedAddressId}
-                onChange={(e) => setSelectedAddressId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 outline-none"
-              >
-                {addresses.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.contact_person} - {a.address_line1}, {a.city} ({a.pincode})
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">
-                Order Notes / Transport Instructions:
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Send via VRL Logistics or specific transport"
-                value={orderNotes}
-                onChange={(e) => setOrderNotes(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Payment Method */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Wholesale Payment Method
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <label
-                className={`p-3 rounded-xl border text-xs font-bold cursor-pointer flex items-center gap-2 ${
-                  paymentMethod === 'COD'
-                    ? 'border-rose-600 bg-rose-50/50 text-rose-900'
-                    : 'border-slate-200 bg-slate-50 text-slate-700'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'COD'}
-                  onChange={() => setPaymentMethod('COD')}
-                  className="accent-rose-600"
-                />
-                COD / Pay on Delivery
-              </label>
-              <label
-                className={`p-3 rounded-xl border text-xs font-bold cursor-pointer flex items-center gap-2 ${
-                  paymentMethod === 'BANK_TRANSFER'
-                    ? 'border-rose-600 bg-rose-50/50 text-rose-900'
-                    : 'border-slate-200 bg-slate-50 text-slate-700'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'BANK_TRANSFER'}
-                  onChange={() => setPaymentMethod('BANK_TRANSFER')}
-                  className="accent-rose-600"
-                />
-                Bank Transfer / NEFT
-              </label>
-            </div>
-          </div>
-
-          {/* Order Totals */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+          <div className="bootic-card p-6">
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100">
               Wholesale Order Summary
             </h3>
-            <div className="divide-y divide-slate-100 text-xs space-y-2 pt-1">
-              <div className="flex justify-between text-slate-600">
-                <span>Subtotal ({cart.total_quantity} pcs)</span>
-                <span className="font-bold text-slate-900">₹{cart.subtotal.toLocaleString()}</span>
+
+            <div className="space-y-2.5 text-xs text-slate-600 font-medium">
+              <div className="flex justify-between">
+                <span>Total Wholesale Pieces</span>
+                <span className="font-black text-slate-900">{cart.total_quantity} pcs</span>
               </div>
-              <div className="flex justify-between text-slate-600 pt-2">
-                <span>Est. Wholesale GST (5%)</span>
-                <span className="font-bold text-slate-900">₹{cart.estimated_tax.toLocaleString()}</span>
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span className="font-black text-slate-900">₹{cart.subtotal_amount?.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-slate-600 pt-2">
-                <span>Transport / Shipping</span>
-                <span className="font-bold text-emerald-600">
-                  {cart.estimated_shipping === 0 ? 'FREE Wholesale Shipping' : `₹${cart.estimated_shipping}`}
-                </span>
+              <div className="flex justify-between text-emerald-700">
+                <span>Volume Tier Discount</span>
+                <span className="font-black">- ₹{cart.discount_amount?.toLocaleString() || 0}</span>
               </div>
-              <div className="flex justify-between text-sm font-extrabold text-slate-900 pt-3">
-                <span>Total Payable</span>
-                <span className="text-lg text-rose-600">₹{cart.total_amount.toLocaleString()}</span>
+              <div className="flex justify-between">
+                <span>GST / Packaging</span>
+                <span className="font-bold text-slate-500">₹0 (Included)</span>
+              </div>
+              <div className="pt-3 border-t border-slate-100 flex justify-between text-base font-black text-slate-900">
+                <span>Final Payable</span>
+                <span className="text-emerald-900">₹{cart.final_amount?.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Delivery Address Picker */}
+            <div className="mt-6 pt-4 border-t border-slate-100">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Shipping Destination (Boutique)
+              </label>
+              {addresses.length === 0 ? (
+                <div className="p-3 bg-amber-50 rounded-xl text-amber-800 text-xs">
+                  No saved delivery addresses. Please add one in{' '}
+                  <Link to="/addresses" className="underline font-bold">
+                    Addresses
+                  </Link>
+                  .
+                </div>
+              ) : (
+                <select
+                  value={selectedAddressId}
+                  onChange={(e) => setSelectedAddressId(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                >
+                  {addresses.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.business_name || a.contact_person} — {a.city}, {a.state} ({a.pincode})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Payment Method */}
+            <div className="mt-4">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Payment Option
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('COD')}
+                  className={`p-2.5 rounded-xl border text-xs font-black transition-all ${
+                    paymentMethod === 'COD'
+                      ? 'bg-emerald-100 border-emerald-400 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  Cash on Delivery
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('BANK_TRANSFER')}
+                  className={`p-2.5 rounded-xl border text-xs font-black transition-all ${
+                    paymentMethod === 'BANK_TRANSFER'
+                      ? 'bg-emerald-100 border-emerald-400 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  NEFT / RTGS
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="mt-4 p-3 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold">
+                {error}
+              </div>
+            )}
 
             <button
               onClick={handleCheckout}
-              disabled={checkingOut}
-              className="w-full py-3.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-xl shadow-lg shadow-rose-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 mt-4"
+              disabled={checkingOut || addresses.length === 0}
+              className="mt-6 w-full py-3.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all disabled:opacity-50"
             >
-              {checkingOut ? 'Placing Wholesale Order...' : 'Place Wholesale Order Now'}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <CheckCircle className="w-4 h-4" /> Place Wholesale Order (₹{cart.final_amount?.toLocaleString()})
             </button>
           </div>
         </div>

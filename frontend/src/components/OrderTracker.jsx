@@ -27,11 +27,11 @@ export const OrderTracker = ({ currentStatus }) => {
 
   if (isCancelled) {
     return (
-      <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-center gap-3 text-rose-800">
+      <div className="bg-rose-50/80 border border-rose-200 rounded-2xl p-4 flex items-center gap-3 text-rose-800">
         <XCircle className="w-6 h-6 text-rose-600 flex-shrink-0" />
         <div>
-          <h4 className="font-bold text-sm">Order Cancelled / Rejected</h4>
-          <p className="text-xs text-rose-700">Reserved stock has been returned to inventory.</p>
+          <h4 className="font-black text-xs uppercase tracking-wide">Order Cancelled / Released</h4>
+          <p className="text-[11px] text-rose-700 font-medium">Reserved stock has been returned to inventory.</p>
         </div>
       </div>
     );
@@ -40,7 +40,7 @@ export const OrderTracker = ({ currentStatus }) => {
   return (
     <div className="w-full py-4">
       <div className="flex items-center justify-between relative">
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-slate-200 w-full z-0"></div>
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-100 w-full z-0"></div>
         {steps.map((step, idx) => {
           const stepIndex = statusOrder.indexOf(step.key);
           const isCompleted = currentIndex >= stepIndex;
@@ -52,16 +52,16 @@ export const OrderTracker = ({ currentStatus }) => {
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all ${
                   isCompleted
-                    ? 'bg-rose-600 border-rose-600 text-white shadow-md shadow-rose-200'
-                    : 'bg-white border-slate-300 text-slate-400'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 border-emerald-600 text-white shadow-md shadow-emerald-500/25'
+                    : 'bg-white border-slate-200 text-slate-400'
                 }`}
               >
                 <Icon className="w-4 h-4" />
               </div>
               <span
-                className={`text-xs mt-2 font-medium ${
+                className={`text-[11px] mt-2 font-black tracking-tight ${
                   isCurrent
-                    ? 'text-rose-600 font-bold'
+                    ? 'text-emerald-800'
                     : isCompleted
                     ? 'text-slate-900'
                     : 'text-slate-400'

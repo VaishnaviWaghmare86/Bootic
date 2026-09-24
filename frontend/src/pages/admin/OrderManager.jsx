@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, Truck, CheckCircle2, Clock, XCircle, Search } from 'lucide-react';
+import { Layers, Truck, CheckCircle2, Clock, XCircle, Search, Sparkles, X, ArrowUpRight } from 'lucide-react';
 import api from '../../api/client';
 import StatusBadge from '../../components/StatusBadge';
 
@@ -58,175 +58,207 @@ export const OrderManager = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 pb-4 border-b border-slate-200">
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-          Wholesale Order Fulfillment & Tracking
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Process incoming boutique orders, update dispatch/courier tracking numbers, and manage delivery status.
-        </p>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-emerald-900/10 gap-4 mb-8">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-[11px] font-black uppercase tracking-widest shadow-sm">
+            <Layers className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Fulfillment Hub</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2">
+            Wholesale Order Fulfillment & Logistics
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Process incoming boutique orders, update courier dispatch tracking, and manage delivery status.
+          </p>
+        </div>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 mb-6">
+      <div className="bootic-card p-4 mb-6">
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-emerald-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by Order #, Shopkeeper name, boutique, or city (Pune, Nashik)..."
+            placeholder="Search by Order #, Boutique name, or City (Mumbai, Pune, Surat)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-emerald-50/40 border border-emerald-200/80 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           />
         </div>
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-            <tr>
-              <th className="p-4">Order # / Date</th>
-              <th className="p-4">Shopkeeper / City</th>
-              <th className="p-4">Items / Total Pieces</th>
-              <th className="p-4">Total Amount</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Courier & Tracking</th>
-              <th className="p-4 text-right">Update Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {orders.map((order) => {
-              const totalPieces = order.items?.reduce((sum, i) => sum + i.quantity, 0) || 0;
-              return (
-                <tr key={order.id} className="hover:bg-slate-50/50">
-                  <td className="p-4">
-                    <span className="font-extrabold text-slate-900 block">{order.order_number}</span>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <strong className="text-slate-900 block font-bold">
-                      {order.customer_business_name || order.customer_name}
-                    </strong>
-                    <span className="text-[10px] text-slate-500">
-                      {order.customer_city || order.shipping_address?.city} • {order.customer_mobile}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className="font-bold text-slate-800">{order.items?.length} Categories</span>
-                    <span className="block text-[10px] text-slate-500">{totalPieces} Total Pieces</span>
-                  </td>
-                  <td className="p-4 font-black text-rose-600 text-sm">
-                    ₹{order.total_amount?.toLocaleString()}
-                  </td>
-                  <td className="p-4">
-                    <StatusBadge status={order.order_status} />
-                  </td>
-                  <td className="p-4">
-                    {order.courier_name ? (
-                      <div>
-                        <span className="font-bold text-slate-800 block">{order.courier_name}</span>
-                        <span className="text-[10px] text-purple-700 font-semibold">{order.tracking_number}</span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-400 text-[10px]">Pending Dispatch</span>
-                    )}
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => openStatusUpdate(order)}
-                      className="px-3 py-1.5 bg-slate-900 hover:bg-rose-600 text-white rounded-xl font-bold transition-colors shadow-sm"
-                    >
-                      Update
-                    </button>
+      <div className="bootic-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#f2f8f5] border-b border-emerald-900/10 text-emerald-900 font-black uppercase tracking-wider">
+              <tr>
+                <th className="p-4">Order # / Date</th>
+                <th className="p-4">Boutique / City</th>
+                <th className="p-4">Pieces Ordered</th>
+                <th className="p-4">Total Amount</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Courier Logistics</th>
+                <th className="p-4 text-right">Workflow Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-emerald-900/5">
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="p-8 text-center text-slate-400 font-bold">
+                    Loading orders...
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="p-8 text-center text-slate-400 font-bold">
+                    No orders placed yet.
+                  </td>
+                </tr>
+              ) : (
+                orders.map((order) => {
+                  const totalPieces = order.items?.reduce((acc, i) => acc + (i.quantity || 0), 0) || 0;
+                  return (
+                    <tr key={order.id} className="hover:bg-emerald-50/40 transition-colors">
+                      <td className="p-4">
+                        <span className="font-black text-slate-900 block text-xs">
+                          {order.order_number}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="font-black text-slate-900 block">
+                          {order.customer_name || 'Regional Boutique'}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-200 px-2 py-0.5 rounded-md mt-0.5 inline-block">
+                          {order.shipping_address?.city || 'Mumbai'}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="font-black text-slate-900">{totalPieces} pcs</span>
+                        <span className="text-[10px] text-slate-400 block font-semibold">
+                          Across {order.items?.length || 1} styles
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm font-black text-emerald-900">
+                          ₹{order.total_amount?.toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <StatusBadge status={order.order_status} />
+                      </td>
+                      <td className="p-4">
+                        {order.tracking_number ? (
+                          <div className="space-y-0.5">
+                            <span className="font-bold text-slate-900 block">{order.courier_name}</span>
+                            <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                              {order.tracking_number}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 italic">Pending Courier Info</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-right">
+                        <button
+                          onClick={() => openStatusUpdate(order)}
+                          className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-xs font-black shadow-sm"
+                        >
+                          Update Status
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Status Update Modal */}
       {showStatusModal && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 text-xs">
-            <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
-              Update Order Status: {selectedOrder.order_number}
-            </h3>
-            <p className="text-slate-500 mt-2">
-              Buyer: <strong>{selectedOrder.customer_business_name}</strong> ({selectedOrder.customer_city})
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-emerald-500/30">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <Truck className="w-5 h-5 text-emerald-600" />
+                Update Fulfillment & Tracking
+              </h2>
+              <button
+                onClick={() => setShowStatusModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 mt-2 font-medium">
+              Order: <strong className="text-slate-900">{selectedOrder.order_number}</strong>
             </p>
 
-            <form onSubmit={handleUpdateStatus} className="mt-4 space-y-3">
+            <form onSubmit={handleUpdateStatus} className="mt-4 space-y-4">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Workflow Status</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Workflow Status
+                </label>
                 <select
                   value={statusForm.order_status}
                   onChange={(e) => setStatusForm({ ...statusForm, order_status: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                 >
-                  <option value="ORDER_PLACED">ORDER_PLACED</option>
                   <option value="CONFIRMED">CONFIRMED (Stock Reserved)</option>
-                  <option value="PROCESSING">PROCESSING</option>
-                  <option value="PACKED">PACKED</option>
-                  <option value="SHIPPED">SHIPPED (In Transit)</option>
-                  <option value="OUT_FOR_DELIVERY">OUT_FOR_DELIVERY</option>
+                  <option value="PROCESSING">PROCESSING (Packing in Bhiwandi)</option>
+                  <option value="SHIPPED">SHIPPED (Dispatched with Courier)</option>
                   <option value="DELIVERED">DELIVERED (Fulfilled)</option>
-                  <option value="CANCELLED">CANCELLED (Stock Released)</option>
-                  <option value="REJECTED">REJECTED</option>
+                  <option value="CANCELLED">CANCELLED (Stock Restocked)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Courier / Transport Name</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Courier / Logistics Partner
+                </label>
                 <input
                   type="text"
                   value={statusForm.courier_name}
                   onChange={(e) => setStatusForm({ ...statusForm, courier_name: e.target.value })}
-                  placeholder="e.g. VRL Logistics, TCI Express, Delhivery"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                  placeholder="e.g. VRL Logistics, SafeExpress, Trackon"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Waybill / LR / Tracking Number</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Waybill / Tracking Number (LR #)
+                </label>
                 <input
                   type="text"
                   value={statusForm.tracking_number}
                   onChange={(e) => setStatusForm({ ...statusForm, tracking_number: e.target.value })}
-                  placeholder="e.g. VRL-PUN-98213"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                  placeholder="e.g. VRL-MUM-89210"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Admin Notes</label>
-                <input
-                  type="text"
-                  value={statusForm.notes}
-                  onChange={(e) => setStatusForm({ ...statusForm, notes: e.target.value })}
-                  placeholder="Special handling note..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none"
-                />
-              </div>
-
-              <div className="pt-3 flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowStatusModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold text-slate-700"
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-rose-600 text-white rounded-xl font-bold shadow-md shadow-rose-500/20"
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black rounded-xl text-xs shadow-md shadow-emerald-500/20"
                 >
-                  Save Status
+                  Update Order
                 </button>
               </div>
             </form>
